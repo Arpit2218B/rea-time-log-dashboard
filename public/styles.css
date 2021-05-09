@@ -42,7 +42,7 @@ button {
 .logview {
   border: 1px solid #e0e0e0;
   margin: 24px;
-  height: 80vh;
+  height: 70vh;
   max-height: 80vh;
   overflow-y: auto;
   box-sizing: border-box;
@@ -59,4 +59,15 @@ button {
   margin: 0 auto;
   display: none;
   text-align: center;
+}
+
+input {
+  padding: 8px 16px;
+  border: 1px solid #fefefe;
+  outline: none;
+  margin-left: 24px;
+  width: 50vw;
+  border-radius: 10px;
+  background-color: inherit;
+  color: #fefefe;
 }

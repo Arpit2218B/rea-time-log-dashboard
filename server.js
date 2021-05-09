@@ -5,6 +5,9 @@ const server = http.Server(app);
 const io = require('socket.io')(server);
 const fs = require('fs');
 
+let filePath = null;
+let watcher = null;
+
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -14,22 +17,32 @@ app.get('/', (req, res) => {
 });
 
 const writeLogs = (socket) => {
-    const readData = fs.readFileSync('./test.log', {encoding: 'utf-8'});
+    const readData = fs.readFileSync(filePath, {encoding: 'utf-8'});
     const a = readData.split('\n');
     socket.emit('data-received', {data: a});
 }
 
 io.on('connection', socket => {
+    filePath = socket.handshake.query.filepath;
     console.log('User connected');
     
-    socket.emit('user-connected');
+    try {
+        writeLogs(socket);
+        watcher = fs.watch(filePath, (event, filename) => {
+            if(filename && event === 'change') {
+                writeLogs(socket);
+            }
+        });
+        socket.emit('user-connected');
+    }
+    catch(ex) {
+        socket.emit('wrong-filepath');
+    }
 
-    writeLogs(socket);
-
-    fs.watch('./test.log', (event, filename) => {
-        if(filename && event === 'change') {
-            writeLogs(socket);
-        }
+    socket.on('disconnect', () => {
+        watcher.close();
+        console.log('User disconnected');
+        filePath = null;
     });
 });
 
